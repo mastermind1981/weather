@@ -17,16 +17,37 @@ public class WeatherClient {
 
     private static final String BASE_URI = "http://localhost:9090";
 
-    /** end point for read queries */
+    /**
+     * end point for read queries
+     */
     private WebTarget query;
 
-    /** end point to supply updates */
+    /**
+     * end point to supply updates
+     */
     private WebTarget collect;
 
     public WeatherClient() {
         Client client = ClientBuilder.newClient();
         query = client.target(BASE_URI + "/query");
         collect = client.target(BASE_URI + "/collect");
+    }
+
+    public static void main(String[] args) {
+        WeatherClient wc = new WeatherClient();
+        wc.pingCollect();
+        wc.populate("wind", 0, 10, 6, 4, 20);
+
+        wc.query("BOS");
+        wc.query("JFK");
+        wc.query("EWR");
+        wc.query("LGA");
+        wc.query("MMU");
+
+        wc.pingQuery();
+        wc.exit();
+        System.out.print("complete");
+        System.exit(0);
     }
 
     public void pingCollect() {
@@ -50,8 +71,8 @@ public class WeatherClient {
     public void populate(String pointType, int first, int last, int mean, int median, int count) {
         WebTarget path = collect.path("/weather/BOS/" + pointType);
         DataPoint dp = new DataPoint.Builder()
-                .withFirst(first).withLast(last).withMean(mean).withMedian(median).withCount(count)
-                .build();
+            .withFirst(first).withLast(last).withMean(mean).withMedian(median).withCount(count)
+            .build();
         Response post = path.request().post(Entity.entity(dp, "application/json"));
     }
 
@@ -61,22 +82,5 @@ public class WeatherClient {
         } catch (Throwable t) {
             // swallow
         }
-    }
-
-    public static void main(String[] args) {
-        WeatherClient wc = new WeatherClient();
-        wc.pingCollect();
-        wc.populate("wind", 0, 10, 6, 4, 20);
-
-        wc.query("BOS");
-        wc.query("JFK");
-        wc.query("EWR");
-        wc.query("LGA");
-        wc.query("MMU");
-
-        wc.pingQuery();
-        wc.exit();
-        System.out.print("complete");
-        System.exit(0);
     }
 }

@@ -20,18 +20,15 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 
     public final static Logger LOGGER = Logger.getLogger("WeatherQuery");
 
-    /** earth radius in KM */
+    /**
+     * earth radius in KM
+     */
     public static final double R = 6372.8;
 
-    /** shared gson json to object factory */
+    /**
+     * shared gson json to object factory
+     */
     public static final Gson gson = new Gson();
-
-    /** all known airports */
-    protected static List<AirportData> airportData = new ArrayList<>();
-
-    /** atmospheric information for each airport, idx corresponds with airportData */
-    protected static List<AtmosphericInformation> atmosphericInformation = new LinkedList<>();
-
     /**
      * Internal performance counter to better understand most requested information, this map can be improved but
      * for now provides the basis for future performance optimizations. Due to the stateless deployment architecture
@@ -39,12 +36,20 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
      * performance metrics {@link #ping()}
      */
     public static Map<AirportData, Integer> requestFrequency = new HashMap<AirportData, Integer>();
-
     public static Map<Double, Integer> radiusFreq = new HashMap<Double, Integer>();
+    /**
+     * all known airports
+     */
+    protected static List<AirportData> airportData = new ArrayList<>();
+    /**
+     * atmospheric information for each airport, idx corresponds with airportData
+     */
+    protected static List<AtmosphericInformation> atmosphericInformation = new LinkedList<>();
 
     static {
         init();
     }
+
     /**
      * Retrieve service health including total size of valid data points and request frequency information.
      *
@@ -74,14 +79,14 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
         Map<String, Double> freq = new HashMap<>();
         // fraction of queries
         for (AirportData data : airportData) {
-            double frac = (double)requestFrequency.getOrDefault(data, 0) / requestFrequency.size();
+            double frac = (double) requestFrequency.getOrDefault(data, 0) / requestFrequency.size();
             freq.put(data.getIata(), frac);
         }
         retval.put("iata_freq", freq);
 
         int m = radiusFreq.keySet().stream()
-                .max(Double::compare)
-                .orElse(1000.0).intValue() + 1;
+            .max(Double::compare)
+            .orElse(1000.0).intValue() + 1;
 
         int[] hist = new int[m];
         for (Map.Entry<Double, Integer> e : radiusFreq.entrySet()) {
@@ -97,9 +102,8 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
      * Given a query in json format {'iata': CODE, 'radius': km} extracts the requested airport information and
      * return a list of matching atmosphere information.
      *
-     * @param iata the iataCode
+     * @param iata         the iataCode
      * @param radiusString the radius in km
-     *
      * @return a list of atmospheric information
      */
     @Override
@@ -113,11 +117,11 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
             retval.add(atmosphericInformation.get(idx));
         } else {
             AirportData ad = findAirportData(iata);
-            for (int i=0;i< airportData.size(); i++){
-                if (calculateDistance(ad, airportData.get(i)) <= radius){
+            for (int i = 0; i < airportData.size(); i++) {
+                if (calculateDistance(ad, airportData.get(i)) <= radius) {
                     AtmosphericInformation ai = atmosphericInformation.get(i);
                     if (ai.getCloudCover() != null || ai.getHumidity() != null || ai.getPrecipitation() != null
-                       || ai.getPressure() != null || ai.getTemperature() != null || ai.getWind() != null){
+                        || ai.getPressure() != null || ai.getTemperature() != null || ai.getWind() != null) {
                         retval.add(ai);
                     }
                 }
@@ -126,11 +130,10 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
         return Response.status(Response.Status.OK).entity(retval).build();
     }
 
-
     /**
      * Records information about how often requests are made
      *
-     * @param iata an iata code
+     * @param iata   an iata code
      * @param radius query radius
      */
     public void updateRequestFrequency(String iata, Double radius) {
@@ -172,8 +175,8 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
     public double calculateDistance(AirportData ad1, AirportData ad2) {
         double deltaLat = Math.toRadians(ad2.latitude - ad1.latitude);
         double deltaLon = Math.toRadians(ad2.longitude - ad1.longitude);
-        double a =  Math.pow(Math.sin(deltaLat / 2), 2) + Math.pow(Math.sin(deltaLon / 2), 2)
-                * Math.cos(ad1.latitude) * Math.cos(ad2.latitude);
+        double a = Math.pow(Math.sin(deltaLat / 2), 2) + Math.pow(Math.sin(deltaLon / 2), 2)
+            * Math.cos(ad1.latitude) * Math.cos(ad2.latitude);
         double c = 2 * Math.asin(Math.sqrt(a));
         return R * c;
     }

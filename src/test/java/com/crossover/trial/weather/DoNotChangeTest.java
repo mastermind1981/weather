@@ -15,21 +15,27 @@ import java.nio.file.Paths;
 
 /**
  * DO NOT CHANGE THIS CLASS.
- *
+ * <p>
  * These unit tests validate that the candidate hasn't change key interfaces before submission. If this class failes to compile
  * or asserts at runtime, the submission will not be scored.
- *
+ * <p>
  * To avoid creating a submission that can not be graded, don't change this file and be sure to run mvn test before submission.
  */
 public class DoNotChangeTest {
 
-    /** required group id */
+    /**
+     * required group id
+     */
     private static final String POM_GROUP_ID = "com.crossover.trial";
 
-    /** required artifact id */
+    /**
+     * required artifact id
+     */
     private static final String POM_ARTIFACT_ID = "weather";
 
-    /** required version number */
+    /**
+     * required version number
+     */
     private static final String POM_VERSION = "1.2.0";
 
     private WeatherCollectorEndpoint collector;
@@ -37,7 +43,7 @@ public class DoNotChangeTest {
     private WeatherQueryEndpoint queryEndpoint;
 
     /**
-     * The compile time interface validator for WeatherCollector. This method will NEVER been called, 
+     * The compile time interface validator for WeatherCollector. This method will NEVER been called,
      * but must compile.
      */
     private void validateInterfaceWeatherCollector() {
