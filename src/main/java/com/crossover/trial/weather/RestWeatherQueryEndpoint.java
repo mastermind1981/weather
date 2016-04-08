@@ -1,48 +1,70 @@
 package com.crossover.trial.weather;
 
 import com.google.gson.Gson;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.crossover.trial.weather.RestWeatherCollectorEndpoint.addAirport;
 
 /**
- * The Weather App REST endpoint allows clients to query, update and check health stats. Currently, all data is
- * held in memory. The end point deploys to a single container
+ * The Weather App REST endpoint allows clients to query, update and check
+ * health stats. Currently, all data is held in memory.
+ * <p>
+ * The end point deploys to a single container.
  *
  * @author code test administrator
  */
 @Path("/query")
 public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
-
-    public final static Logger LOGGER = Logger.getLogger("WeatherQuery");
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = Logger.getLogger("WeatherQuery");
 
     /**
-     * earth radius in KM
+     * Earth radius in KM.
      */
     public static final double R = 6372.8;
 
     /**
-     * shared gson json to object factory
+     * Shared gson json to object factory.
      */
-    public static final Gson gson = new Gson();
-    /**
-     * Internal performance counter to better understand most requested information, this map can be improved but
-     * for now provides the basis for future performance optimizations. Due to the stateless deployment architecture
-     * we don't want to write this to disk, but will pull it off using a REST request and aggregate with other
-     * performance metrics {@link #ping()}
+    private static final Gson GSON = new Gson();
+
+    /*
+     * Internal performance counter to better understand most requested
+     * information, this map can be improved but for now provides the basis for
+     * future performance optimizations. Due to the stateless deployment
+     * architecture we don't want to write this to disk, but will pull it off
+     * using a REST request and aggregate with other performance metrics
+     * {@link #ping()}
      */
-    public static Map<AirportData, Integer> requestFrequency = new HashMap<AirportData, Integer>();
-    public static Map<Double, Integer> radiusFreq = new HashMap<Double, Integer>();
     /**
-     * all known airports
+     * Requests frequency.
+     */
+    private static Map<AirportData, Integer> requestFrequency = new HashMap<>();
+
+    /**
+     * Radius frequency.
+     */
+    private static Map<Double, Integer> radiusFreq = new HashMap<>();
+
+    /**
+     * All known airports.
      */
     protected static List<AirportData> airportData = new ArrayList<>();
+
     /**
-     * atmospheric information for each airport, idx corresponds with airportData
+     * Atmospheric information for each airport, idx corresponds with airportData.
      */
     protected static List<AtmosphericInformation> atmosphericInformation = new LinkedList<>();
 
@@ -51,7 +73,8 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
     }
 
     /**
-     * Retrieve service health including total size of valid data points and request frequency information.
+     * Retrieve service health including total size of valid data points and
+     * request frequency information.
      *
      * @return health stats for the service as a string
      */
@@ -69,7 +92,7 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
                 || ai.getTemperature() != null
                 || ai.getWind() != null) {
                 // updated in the last day
-                if (ai.getLastUpdateTime() > System.currentTimeMillis() - 86400000) {
+                if (ai.getLastUpdateTime() > System.currentTimeMillis() - ChronoUnit.DAYS.getDuration().toMillis()) {
                     datasize++;
                 }
             }
@@ -95,7 +118,7 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
         }
         retval.put("radius_freq", hist);
 
-        return gson.toJson(retval);
+        return GSON.toJson(retval);
     }
 
     /**
@@ -107,8 +130,8 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
      * @return a list of atmospheric information
      */
     @Override
-    public Response weather(String iata, String radiusString) {
-        double radius = radiusString == null || radiusString.trim().isEmpty() ? 0 : Double.valueOf(radiusString);
+    public Response weather(final String iata, final String radiusString) {
+        double radius = StringUtils.isBlank(radiusString) ? 0 : Double.valueOf(radiusString);
         updateRequestFrequency(iata, radius);
 
         List<AtmosphericInformation> retval = new ArrayList<>();
@@ -131,36 +154,36 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
     }
 
     /**
-     * Records information about how often requests are made
+     * Records information about how often requests are made.
      *
      * @param iata   an iata code
      * @param radius query radius
      */
-    public void updateRequestFrequency(String iata, Double radius) {
+    public void updateRequestFrequency(final String iata, final Double radius) {
         AirportData airportData = findAirportData(iata);
         requestFrequency.put(airportData, requestFrequency.getOrDefault(airportData, 0) + 1);
         radiusFreq.put(radius, radiusFreq.getOrDefault(radius, 0));
     }
 
     /**
-     * Given an iataCode find the airport data
+     * Given an iataCode find the airport data.
      *
      * @param iataCode as a string
      * @return airport data or null if not found
      */
-    public static AirportData findAirportData(String iataCode) {
+    public static AirportData findAirportData(final String iataCode) {
         return airportData.stream()
             .filter(ap -> ap.getIata().equals(iataCode))
             .findFirst().orElse(null);
     }
 
     /**
-     * Given an iataCode find the airport data
+     * Given an iataCode find the airport data.
      *
      * @param iataCode as a string
      * @return airport data or null if not found
      */
-    public static int getAirportDataIdx(String iataCode) {
+    public static int getAirportDataIdx(final String iataCode) {
         AirportData ad = findAirportData(iataCode);
         return airportData.indexOf(ad);
     }
@@ -172,17 +195,17 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
      * @param ad2 airport 2
      * @return the distance in KM
      */
-    public double calculateDistance(AirportData ad1, AirportData ad2) {
-        double deltaLat = Math.toRadians(ad2.latitude - ad1.latitude);
-        double deltaLon = Math.toRadians(ad2.longitude - ad1.longitude);
+    public double calculateDistance(final AirportData ad1, final AirportData ad2) {
+        double deltaLat = Math.toRadians(ad2.getLatitude() - ad1.getLatitude());
+        double deltaLon = Math.toRadians(ad2.getLongitude() - ad1.getLongitude());
         double a = Math.pow(Math.sin(deltaLat / 2), 2) + Math.pow(Math.sin(deltaLon / 2), 2)
-            * Math.cos(ad1.latitude) * Math.cos(ad2.latitude);
+            * Math.cos(ad1.getLatitude()) * Math.cos(ad2.getLatitude());
         double c = 2 * Math.asin(Math.sqrt(a));
         return R * c;
     }
 
     /**
-     * A dummy init method that loads hard coded data
+     * A dummy init method that loads hard coded data.
      */
     protected static void init() {
         airportData.clear();

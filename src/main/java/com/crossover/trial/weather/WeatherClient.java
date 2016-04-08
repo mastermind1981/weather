@@ -15,25 +15,36 @@ import javax.ws.rs.core.Response;
  */
 public class WeatherClient {
 
+    /**
+     * Constant URI where a running application is expected.
+     */
     private static final String BASE_URI = "http://localhost:9090";
 
     /**
-     * end point for read queries
+     * End point for read queries.
      */
     private WebTarget query;
 
     /**
-     * end point to supply updates
+     * End point to supply updates.
      */
     private WebTarget collect;
 
+    /**
+     * Constructor for the client.
+     */
     public WeatherClient() {
         Client client = ClientBuilder.newClient();
         query = client.target(BASE_URI + "/query");
         collect = client.target(BASE_URI + "/collect");
     }
 
-    public static void main(String[] args) {
+    /**
+     * Main method that tests communication.
+     *
+     * @param args no arguments expected
+     */
+    public static void main(final String[] args) {
         WeatherClient wc = new WeatherClient();
         wc.pingCollect();
         wc.populate("wind", 0, 10, 6, 4, 20);
@@ -50,25 +61,47 @@ public class WeatherClient {
         System.exit(0);
     }
 
+    /**
+     * Pings weather server, to see if it's ready.
+     */
     public void pingCollect() {
         WebTarget path = collect.path("/ping");
         Response response = path.request().get();
         System.out.print("collect.ping: " + response.readEntity(String.class) + "\n");
     }
 
-    public void query(String iata) {
+    /**
+     * Queries weather service for data by particulat IATA code.
+     *
+     * @param iata IATA code to query by
+     */
+    public void query(final String iata) {
         WebTarget path = query.path("/weather/" + iata + "/0");
         Response response = path.request().get();
         System.out.println("query." + iata + ".0: " + response.readEntity(String.class));
     }
 
+    /**
+     * Call ping service providing health and status information for the the query api.
+     */
     public void pingQuery() {
         WebTarget path = query.path("/ping");
         Response response = path.request().get();
         System.out.println("query.ping: " + response.readEntity(String.class));
     }
 
-    public void populate(String pointType, int first, int last, int mean, int median, int count) {
+    /**
+     * Populates provided data into source.
+     *
+     * @param pointType type of collected data
+     * @param first 1st percentile
+     * @param last 3rd percentile
+     * @param mean mean of the collected data
+     * @param median median
+     * @param count number of measurements
+     */
+    public void populate(final String pointType, final int first, final int last, final int mean,
+                         final int median, final int count) {
         WebTarget path = collect.path("/weather/BOS/" + pointType);
         DataPoint dp = new DataPoint.Builder()
             .withFirst(first).withLast(last).withMean(mean).withMedian(median).withCount(count)
@@ -76,6 +109,9 @@ public class WeatherClient {
         Response post = path.request().post(Entity.entity(dp, "application/json"));
     }
 
+    /**
+     * Calls exit method that stops remote server.
+     */
     public void exit() {
         try {
             collect.path("/exit").request().get();

@@ -11,56 +11,90 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 public class AirportData {
 
     /**
-     * the three letter IATA code
+     * IATA code.
      */
-    String iata;
+    private String iata;
 
     /**
-     * latitude value in degrees
+     * Latitude value in degrees.
      */
-    double latitude;
+    private double latitude;
 
     /**
-     * longitude value in degrees
+     * Longitude value in degrees.
      */
-    double longitude;
+    private double longitude;
 
-    public AirportData() {
-    }
-
+    /**
+     * @return The three letter IATA code
+     */
     public String getIata() {
         return iata;
     }
 
-    public void setIata(String iata) {
+    /**
+     * Setter for IATA code.
+     *
+     * @param iata three letter IATA code to set
+     */
+    public void setIata(final String iata) {
         this.iata = iata;
     }
 
+    /**
+     * @return Latitude value in degrees.
+     */
     public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    /**
+     * Setter for latitude.
+     *
+     * @param latitude latitude in degrees to set
+     */
+    public void setLatitude(final double latitude) {
         this.latitude = latitude;
     }
 
+    /**
+     * @return Longitude value in degrees.
+     */
     public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    /**
+     * Setter for longitude.
+     *
+     * @param longitude longitude in degrees to set
+     */
+    public void setLongitude(final double longitude) {
         this.longitude = longitude;
     }
 
+    @Override
     public String toString() {
         return ReflectionToStringBuilder.toString(this, ToStringStyle.NO_CLASS_NAME_STYLE);
     }
 
-    public boolean equals(Object other) {
-        if (other instanceof AirportData) {
-            return ((AirportData) other).getIata().equals(this.getIata());
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AirportData)) {
+            return false;
         }
 
-        return false;
+        AirportData that = (AirportData) o;
+
+        return getIata().equals(that.getIata());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return iata.hashCode();
     }
 }

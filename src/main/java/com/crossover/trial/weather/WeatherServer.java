@@ -17,16 +17,26 @@ import static java.lang.String.format;
 
 
 /**
- * This main method will be use by the automated functional grader. You shouldn't move this class or remove the
- * main method. You may change the implementation, but we encourage caution.
+ * This main method will be use by the automated functional grader.
+ * You shouldn't move this class or remove the main method.
+ *
+ * You may change the implementation, but we encourage caution.
  *
  * @author code test administrator
  */
 public class WeatherServer {
 
+    /**
+     * URL to start the web-application on.
+     */
     private static final String BASE_URL = "http://localhost:9090/";
 
-    public static void main(String[] args) {
+    /**
+     * Main method for running the server.
+     *
+     * @param args no input expected
+     */
+    public static void main(final String[] args) {
         try {
             System.out.println("Starting Weather App local testing server: " + BASE_URL);
 
@@ -35,12 +45,12 @@ public class WeatherServer {
             resourceConfig.register(RestWeatherQueryEndpoint.class);
 
             HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URL), resourceConfig, false);
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                server.shutdownNow();
-            }));
+            Runtime.getRuntime().addShutdownHook(new Thread(server::shutdownNow));
 
             HttpServerProbe probe = new HttpServerProbe.Adapter() {
-                public void onRequestReceiveEvent(HttpServerFilter filter, Connection connection, Request request) {
+                @Override
+                public void onRequestReceiveEvent(final HttpServerFilter filter, final Connection connection,
+                                                  final Request request) {
                     System.out.println(request.getRequestURI());
                 }
             };
