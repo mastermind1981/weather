@@ -1,71 +1,65 @@
 package com.crossover.trial.weather;
 
-import org.glassfish.grizzly.Connection;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.HttpServerFilter;
-import org.glassfish.grizzly.http.server.HttpServerProbe;
-import org.glassfish.grizzly.http.server.Request;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.core.env.Environment;
+import org.springframework.data.map.repository.config.EnableMapRepositories;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.lang.String.format;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 
 /**
  * This main method will be use by the automated functional grader.
  * You shouldn't move this class or remove the main method.
- *
+ * <p>
  * You may change the implementation, but we encourage caution.
  *
  * @author code test administrator
  */
-public class WeatherServer {
+@SpringBootApplication
+@EnableMapRepositories("com.crossover.trial.weather.repository")
+public class WeatherServer extends SpringBootServletInitializer {
 
     /**
-     * URL to start the web-application on.
+     * Logger.
      */
-    private static final String BASE_URL = "http://localhost:9090/";
+    private static final Logger LOG = LoggerFactory.getLogger(WeatherServer.class);
 
     /**
      * Main method for running the server.
      *
      * @param args no input expected
+     * @throws UnknownHostException if the local host name could not be resolved into an address
      */
-    public static void main(final String[] args) {
-        try {
-            System.out.println("Starting Weather App local testing server: " + BASE_URL);
-
-            final ResourceConfig resourceConfig = new ResourceConfig();
-            resourceConfig.register(RestWeatherCollectorEndpoint.class);
-            resourceConfig.register(RestWeatherQueryEndpoint.class);
-
-            HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URL), resourceConfig, false);
-            Runtime.getRuntime().addShutdownHook(new Thread(server::shutdownNow));
-
-            HttpServerProbe probe = new HttpServerProbe.Adapter() {
-                @Override
-                public void onRequestReceiveEvent(final HttpServerFilter filter, final Connection connection,
-                                                  final Request request) {
-                    System.out.println(request.getRequestURI());
-                }
-            };
-            server.getServerConfiguration().getMonitoringConfig().getWebServerConfig().addProbes(probe);
+    public static void main(final String... args) throws UnknownHostException {
+        Environment env = new WeatherServer()
+            .configure(new SpringApplicationBuilder(WeatherServer.class))
+            .run(args).getEnvironment();
 
 
-            // the autograder waits for this output before running automated tests, please don't remove it
-            server.start();
-            System.out.println(format("Weather Server started.\n url=%s\n", BASE_URL));
+        LOG.info("\n----------------------------------------------------------\n\t"
+                + "Application '{}' is running! Access URLs:\n\t"
+                + "Local: \t\thttp://{}:{}\n\t"
+                + "External: \thttp://{}:{}\n----------------------------------------------------------",
+            env.getProperty("spring.application.name"),
+            env.getProperty("util.localhost"),
+            env.getProperty("server.port"),
+            InetAddress.getLocalHost().getHostAddress(),
+            env.getProperty("server.port"));
 
-            // blocks until the process is terminated
-            Thread.currentThread().join();
-            server.shutdown();
-        } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(WeatherServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        String configServerStatus = env.getProperty("configserver.status");
+        LOG.info("\n----------------------------------------------------------\n\t"
+                + "Config Server: \t{}\n----------------------------------------------------------",
+            configServerStatus == null ? "Not found or not setup for this application" : configServerStatus);
+
+    }
+
+    @Override
+    protected SpringApplicationBuilder configure(final SpringApplicationBuilder application) {
+        return application.sources(WeatherServer.class);
     }
 }

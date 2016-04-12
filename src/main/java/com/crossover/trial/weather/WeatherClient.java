@@ -1,5 +1,9 @@
 package com.crossover.trial.weather;
 
+import com.crossover.trial.weather.domain.DataPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -21,14 +25,19 @@ public class WeatherClient {
     private static final String BASE_URI = "http://localhost:9090";
 
     /**
+     * Logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(WeatherClient.class);
+
+    /**
      * End point for read queries.
      */
-    private WebTarget query;
+    private final WebTarget query;
 
     /**
      * End point to supply updates.
      */
-    private WebTarget collect;
+    private final WebTarget collect;
 
     /**
      * Constructor for the client.
@@ -44,7 +53,7 @@ public class WeatherClient {
      *
      * @param args no arguments expected
      */
-    public static void main(final String[] args) {
+    public static void main(final String... args) {
         WeatherClient wc = new WeatherClient();
         wc.pingCollect();
         wc.populate("wind", 0, 10, 6, 4, 20);
@@ -57,7 +66,7 @@ public class WeatherClient {
 
         wc.pingQuery();
         wc.exit();
-        System.out.print("complete");
+        LOG.info("complete");
         System.exit(0);
     }
 
@@ -67,7 +76,7 @@ public class WeatherClient {
     public void pingCollect() {
         WebTarget path = collect.path("/ping");
         Response response = path.request().get();
-        System.out.print("collect.ping: " + response.readEntity(String.class) + "\n");
+        LOG.info("collect.ping: {}\n", response.readEntity(String.class));
     }
 
     /**
@@ -78,7 +87,7 @@ public class WeatherClient {
     public void query(final String iata) {
         WebTarget path = query.path("/weather/" + iata + "/0");
         Response response = path.request().get();
-        System.out.println("query." + iata + ".0: " + response.readEntity(String.class));
+        LOG.info("query.{}.0: {}", iata, response.readEntity(String.class));
     }
 
     /**
@@ -87,18 +96,18 @@ public class WeatherClient {
     public void pingQuery() {
         WebTarget path = query.path("/ping");
         Response response = path.request().get();
-        System.out.println("query.ping: " + response.readEntity(String.class));
+        LOG.info("query.ping: {}", response.readEntity(String.class));
     }
 
     /**
      * Populates provided data into source.
      *
      * @param pointType type of collected data
-     * @param first 1st percentile
-     * @param last 3rd percentile
-     * @param mean mean of the collected data
-     * @param median median
-     * @param count number of measurements
+     * @param first     1st percentile
+     * @param last      3rd percentile
+     * @param mean      mean of the collected data
+     * @param median    median
+     * @param count     number of measurements
      */
     public void populate(final String pointType, final int first, final int last, final int mean,
                          final int median, final int count) {
@@ -107,6 +116,7 @@ public class WeatherClient {
             .withFirst(first).withLast(last).withMean(mean).withMedian(median).withCount(count)
             .build();
         Response post = path.request().post(Entity.entity(dp, "application/json"));
+        LOG.debug("Populate response: {}", post);
     }
 
     /**
@@ -115,8 +125,8 @@ public class WeatherClient {
     public void exit() {
         try {
             collect.path("/exit").request().get();
-        } catch (Throwable t) {
-            // swallow
+        } catch (Exception e) {
+            LOG.trace("Swallowing exception", e);
         }
     }
 }

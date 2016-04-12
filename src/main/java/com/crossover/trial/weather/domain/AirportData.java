@@ -1,18 +1,22 @@
-package com.crossover.trial.weather;
+package com.crossover.trial.weather.domain;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.keyvalue.annotation.KeySpace;
 
 /**
  * Basic airport information.
  *
  * @author code test administrator
  */
+@KeySpace("airportData")
 public class AirportData {
 
     /**
      * IATA code.
      */
+    @Id
     private String iata;
 
     /**
@@ -24,6 +28,11 @@ public class AirportData {
      * Longitude value in degrees.
      */
     private double longitude;
+
+    /**
+     * Atmospheric information for the airport.
+     */
+    private AtmosphericInformation atmosphericInformation = new AtmosphericInformation();
 
     /**
      * @return The three letter IATA code
@@ -72,6 +81,23 @@ public class AirportData {
     public void setLongitude(final double longitude) {
         this.longitude = longitude;
     }
+
+    /**
+     * @return atmospheric information for this airport.
+     */
+    public AtmosphericInformation getAtmosphericInformation() {
+        return atmosphericInformation;
+    }
+
+    /**
+     * Setter for atmospheric information.
+     *
+     * @param atmosphericInformation atmospheric information
+     */
+    public void setAtmosphericInformation(final AtmosphericInformation atmosphericInformation) {
+        this.atmosphericInformation = atmosphericInformation;
+    }
+
 
     @Override
     public String toString() {

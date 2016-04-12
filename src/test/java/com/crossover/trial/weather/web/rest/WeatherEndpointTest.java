@@ -1,20 +1,29 @@
-package com.crossover.trial.weather;
+package com.crossover.trial.weather.web.rest;
 
+import com.crossover.trial.weather.domain.AtmosphericInformation;
+import com.crossover.trial.weather.domain.DataPoint;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.inject.Inject;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WeatherEndpointTest {
 
-    private WeatherQueryEndpoint _query = new RestWeatherQueryEndpoint();
-
-    private WeatherCollectorEndpoint _update = new RestWeatherCollectorEndpoint();
+    @Inject
+    private WeatherQueryEndpoint _query;
+    @Inject
+    private WeatherCollectorEndpoint _update;
 
     private Gson _gson = new Gson();
 
@@ -22,12 +31,24 @@ public class WeatherEndpointTest {
 
     @Before
     public void setUp() throws Exception {
-        RestWeatherQueryEndpoint.init();
+        init();
         _dp = new DataPoint.Builder()
             .withCount(10).withFirst(10).withMedian(20).withLast(30).withMean(22).build();
         _update.updateWeather("BOS", "wind", _gson.toJson(_dp));
         _query.weather("BOS", "0").getEntity();
     }
+
+    /**
+     * A dummy init method that loads hard coded data.
+     */
+    private void init() {
+        _update.addAirport("BOS", "42.364347", "-71.005181");
+        _update.addAirport("EWR", "40.6925", "-74.168667");
+        _update.addAirport("JFK", "40.639751", "-73.778925");
+        _update.addAirport("LGA", "40.777245", "-73.872608");
+        _update.addAirport("MMU", "40.79935", "-74.4148747");
+    }
+
 
     @Test
     public void testPing() throws Exception {
@@ -46,11 +67,18 @@ public class WeatherEndpointTest {
     @Test
     public void testGetNearby() throws Exception {
         // check datasize response
+        DataPoint.Builder dataPointBuilder = new DataPoint.Builder()
+            .withCount(_dp.getCount())
+            .withFirst(_dp.getFirst())
+            .withMedian(_dp.getSecond())
+            .withLast(_dp.getThird())
+            .withMean(_dp.getMean());
+
         _update.updateWeather("JFK", "wind", _gson.toJson(_dp));
-        _dp.setMean(40);
-        _update.updateWeather("EWR", "wind", _gson.toJson(_dp));
-        _dp.setMean(30);
-        _update.updateWeather("LGA", "wind", _gson.toJson(_dp));
+        dataPointBuilder.withMean(40);
+        _update.updateWeather("EWR", "wind", _gson.toJson(dataPointBuilder.build()));
+        dataPointBuilder.withMean(30);
+        _update.updateWeather("LGA", "wind", _gson.toJson(dataPointBuilder.build()));
 
         List<AtmosphericInformation> ais = (List<AtmosphericInformation>) _query.weather("JFK", "200").getEntity();
         assertEquals(3, ais.size());

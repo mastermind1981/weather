@@ -1,0 +1,9 @@
+server:
+    port: 9000
+
+spring:
+  application:
+    name: Airport Weather Application
+
+util:
+  localhost: "127.0.0.1"

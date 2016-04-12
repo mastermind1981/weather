@@ -1,4 +1,4 @@
-package com.crossover.trial.weather;
+package com.crossover.trial.weather.domain;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -176,7 +176,7 @@ public class DataPoint {
         /**
          * The mean of observations.
          */
-        private int mean;
+        private double mean;
 
         /**
          * 2nd quartile of observations -- median value.
@@ -210,7 +210,7 @@ public class DataPoint {
          * @param mean value to set
          * @return builder to continue the chain of calls
          */
-        public Builder withMean(final int mean) {
+        public Builder withMean(final double mean) {
             this.mean = mean;
             return this;
         }

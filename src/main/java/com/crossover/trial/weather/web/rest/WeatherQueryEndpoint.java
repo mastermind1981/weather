@@ -1,4 +1,4 @@
-package com.crossover.trial.weather;
+package com.crossover.trial.weather.web.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -31,8 +31,8 @@ public interface WeatherQueryEndpoint {
      *
      * @param iata         the three letter airport code
      * @param radiusString the radius, in km, from which to collect weather data
-     * @return an HTTP Response and a list of {@link AtmosphericInformation} from the requested airport and
-     * airports in the given radius
+     * @return an HTTP Response and a list of {@link com.crossover.trial.weather.domain.AtmosphericInformation}
+     * from the requested airport and airports in the given radius
      */
     @GET
     @Path("/weather/{iata}/{radius}")

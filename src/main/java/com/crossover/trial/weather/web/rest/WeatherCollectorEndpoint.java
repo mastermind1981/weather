@@ -1,4 +1,4 @@
-package com.crossover.trial.weather;
+package com.crossover.trial.weather.web.rest;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -30,7 +30,9 @@ public interface WeatherCollectorEndpoint {
      * json formatted data point information.
      *
      * @param iataCode      the 3 letter airport code
-     * @param pointType     the point type, {@link DataPointType} for a complete list
+     * @param pointType     the point type,
+     *                      {@link com.crossover.trial.weather.domain.DataPointType}
+     *                      for a complete list
      * @param datapointJson a json dict containing mean, first, second, thrid and count keys
      * @return HTTP Response code
      */
@@ -54,7 +56,8 @@ public interface WeatherCollectorEndpoint {
      * Retrieve airport data, including latitude and longitude for a particular airport.
      *
      * @param iata the 3 letter airport code
-     * @return an HTTP Response with a json representation of {@link AirportData}
+     * @return an HTTP Response with a json representation of
+     * {@link com.crossover.trial.weather.domain.AirportData}
      */
     @GET
     @Path("/airport/{iata}")
