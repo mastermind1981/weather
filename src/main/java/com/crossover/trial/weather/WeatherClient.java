@@ -64,6 +64,9 @@ public class WeatherClient {
         wc.query("EWR");
         wc.query("LGA");
         wc.query("MMU");
+        wc.query("XYZ");
+        wc.remove("XYZ");
+        wc.query("XYZ");
 
         wc.pingQuery();
         wc.exit();
@@ -77,6 +80,7 @@ public class WeatherClient {
      */
     private void init() {
         addAirport("BOS", "42.364347", "-71.005181");
+        addAirport("XYZ", "42.004347", "-71.425181");
         addAirport("EWR", "40.6925", "-74.168667");
         addAirport("JFK", "40.639751", "-73.778925");
         addAirport("LGA", "40.777245", "-73.872608");
@@ -146,6 +150,17 @@ public class WeatherClient {
             .withFirst(first).withLast(last).withMean(mean).withMedian(median).withCount(count)
             .build();
         Response post = path.request().post(Entity.entity(dp, "application/json"));
+        LOG.debug("Populate response: {}", post);
+    }
+
+    /**
+     * Calls service to remove airport by IATA code.
+     *
+     * @param iata iata code to remove by
+     */
+    public void remove(final String iata) {
+        WebTarget path = collect.path("/airport/" + iata);
+        Response post = path.request().delete();
         LOG.debug("Populate response: {}", post);
     }
 

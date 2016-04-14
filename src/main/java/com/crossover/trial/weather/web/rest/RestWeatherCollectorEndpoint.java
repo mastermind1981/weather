@@ -98,7 +98,6 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     @Override
     @POST
     @Path("/airport/{iata}/{lat}/{long}")
-    // TODO: IMPLEMENT/verify cache eviction
     public Response addAirport(@PathParam("iata") final String iata,
                                @PathParam("lat") final String latString,
                                @PathParam("long") final String longString) {
@@ -109,7 +108,6 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     @Override
     @DELETE
     @Path("/airport/{iata}")
-    // TODO: IMPLEMENT/verify cache eviction
     public Response deleteAirport(@PathParam("iata") final String iata) {
         airportDataRepository.delete(iata);
         return Response.status(Response.Status.OK).build();
