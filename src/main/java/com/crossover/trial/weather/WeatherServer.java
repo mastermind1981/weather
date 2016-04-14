@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.core.env.Environment;
 import org.springframework.data.map.repository.config.EnableMapRepositories;
 
@@ -22,6 +23,7 @@ import java.net.UnknownHostException;
  */
 @SpringBootApplication
 @EnableMapRepositories("com.crossover.trial.weather.repository")
+@EnableCaching
 //@EnableConfigurationProperties( {SwaggerProperties.class})
 public class WeatherServer extends SpringBootServletInitializer {
 

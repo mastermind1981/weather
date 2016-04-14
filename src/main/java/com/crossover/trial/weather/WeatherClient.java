@@ -115,7 +115,7 @@ public class WeatherClient {
      * @param iata IATA code to query by
      */
     public void query(final String iata) {
-        WebTarget path = query.path("/weather/" + iata + "/0");
+        WebTarget path = query.path("/weather/" + iata + "/" + 50 * (iata.hashCode() % 10));
         Response response = path.request().get();
         LOG.info("query.{}.0: {}", iata, response.readEntity(String.class));
     }
