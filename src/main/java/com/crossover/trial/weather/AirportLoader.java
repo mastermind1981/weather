@@ -87,6 +87,16 @@ public final class AirportLoader {
      */
     public void upload(final Iterable<CSVRecord> resultSet) {
 
+        // 1. Because previous implementation totally relied on the
+        //    fact that IATA exists and it uniquely identifies airport
+        //    we make same assumptions here.
+        //    if needed this place can be changed to treat ICAO as well.
+        //    so far there's not enough information about correlation between
+        //    ICAO and IATA to do better processing.
+        // 2. Only 3 fields that existed in original model are processed.
+        //    Again, because there's not enough information on how to process
+        //    the others. Especially taking into consideration that adding fields
+        //    might have influenced external REST APIs.
         for (CSVRecord csvRecord : resultSet) {
             WebTarget path = collect.path(
                 String.format("/airport/%s/%s/%s",
@@ -116,7 +126,8 @@ public final class AirportLoader {
      */
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
-        PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
+        PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer =
+            new PropertySourcesPlaceholderConfigurer();
         YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean();
         yaml.setResources(new ClassPathResource("config/application.yml"));
         propertySourcesPlaceholderConfigurer.setProperties(yaml.getObject());
