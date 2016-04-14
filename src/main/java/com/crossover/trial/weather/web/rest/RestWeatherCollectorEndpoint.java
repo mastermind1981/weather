@@ -23,12 +23,12 @@ import java.util.Set;
 
 
 /**
- * A REST implementation of the WeatherCollector API. Accessible only to airport weather collection
- * sites via secure VPN.
+ * A REST implementation of the WeatherCollector API. Accessible only to airport
+ * weather collection sites via secure VPN.
+ * <p>
+ * Note: JEE specification recommends copying annotations from interface to
+ * implementing class in order to be fully-compatible with specification.
  *
- * Note: JEE specification recommends copying annotations from interface to implementing class
- * in order to be fully-compatible with specification
- * .
  * @author code test administrator
  */
 
@@ -41,9 +41,10 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     private static final Logger LOG = LoggerFactory.getLogger(RestWeatherCollectorEndpoint.class);
 
     /**
-     * Shared gson json to object factory.
+     * Gson json to object factory.
      */
-    private static final Gson GSON = new Gson();
+    @Inject
+    private Gson gson;
 
 
     /**
@@ -64,9 +65,9 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     @Path("/weather/{iata}/{pointType}")
     public Response updateWeather(@PathParam("iata") final String iataCode,
                                   @PathParam("pointType") final String pointType,
-                                  final String datapointJson) {
+                                  final String dataPointJson) {
         try {
-            addDataPoint(iataCode, pointType, GSON.fromJson(datapointJson, DataPoint.class));
+            addDataPoint(iataCode, pointType, gson.fromJson(dataPointJson, DataPoint.class));
         } catch (WeatherException e) {
             LOG.error("An error occurred while updating weather", e);
         }
@@ -108,7 +109,8 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
     @DELETE
     @Path("/airport/{iata}")
     public Response deleteAirport(@PathParam("iata") final String iata) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+        airportDataRepository.delete(iata);
+        return Response.status(Response.Status.OK).build();
     }
 
     @Override
@@ -128,13 +130,15 @@ public class RestWeatherCollectorEndpoint implements WeatherCollectorEndpoint {
      *
      * @param iataCode  the 3 letter IATA code
      * @param pointType the point type {@link com.crossover.trial.weather.domain.DataPointType}
-     * @param dp        a datapoint object holding pointType data
+     * @param dataPoint a datapoint object holding pointType data
      * @throws WeatherException if the update can not be completed
      */
     private void addDataPoint(final String iataCode, final String pointType,
-                              final DataPoint dp) throws WeatherException {
+                              final DataPoint dataPoint) throws WeatherException {
         AirportData airportData = airportDataRepository.findOne(iataCode);
-        airportData.getAtmosphericInformation().update(pointType, dp);
+        if (airportData != null) {
+            airportData.getAtmosphericInformation().update(pointType, dataPoint);
+        }
     }
 
     /**

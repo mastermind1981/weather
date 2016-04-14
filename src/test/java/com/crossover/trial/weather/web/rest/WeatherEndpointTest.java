@@ -24,8 +24,8 @@ public class WeatherEndpointTest {
     private WeatherQueryEndpoint _query;
     @Inject
     private WeatherCollectorEndpoint _update;
-
-    private Gson _gson = new Gson();
+    @Inject
+    private Gson _gson;
 
     private DataPoint _dp;
 
@@ -39,7 +39,8 @@ public class WeatherEndpointTest {
     }
 
     /**
-     * A dummy init method that loads hard coded data.
+     * Backwards compatibility init method that loads data that was previously
+     * hard coded inside rest service.
      */
     private void init() {
         _update.addAirport("BOS", "42.364347", "-71.005181");

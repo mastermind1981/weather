@@ -2,6 +2,13 @@ package com.crossover.trial.weather.domain;
 
 import com.crossover.trial.weather.WeatherException;
 
+import static com.crossover.trial.weather.domain.DataPointType.CLOUDCOVER;
+import static com.crossover.trial.weather.domain.DataPointType.HUMIDTY;
+import static com.crossover.trial.weather.domain.DataPointType.PRECIPITATION;
+import static com.crossover.trial.weather.domain.DataPointType.PRESSURE;
+import static com.crossover.trial.weather.domain.DataPointType.TEMPERATURE;
+import static com.crossover.trial.weather.domain.DataPointType.WIND;
+
 /**
  * Encapsulates sensor information for a particular location.
  */
@@ -53,28 +60,6 @@ public class AtmosphericInformation {
     public AtmosphericInformation() {
         // for cases when no init data available
     }
-
-    /**
-     * Convenience constructor.
-     *
-     * @param temperature   value to set
-     * @param wind          value to set
-     * @param humidity      value to set
-     * @param percipitation value to set
-     * @param pressure      value to set
-     * @param cloudCover    value to set
-     */
-    protected AtmosphericInformation(final DataPoint temperature, final DataPoint wind,
-                                     final DataPoint humidity, final DataPoint percipitation,
-                                     final DataPoint pressure, final DataPoint cloudCover) {
-        this.temperature = temperature;
-        this.wind = wind;
-        this.humidity = humidity;
-        this.precipitation = percipitation;
-        this.pressure = pressure;
-        this.cloudCover = cloudCover;
-    }
-
 
     /**
      * Update atmospheric information with the given data point for the given point type.
@@ -132,8 +117,8 @@ public class AtmosphericInformation {
      * @param temperature value to set
      */
     public void setTemperature(final DataPoint temperature) {
-        if (temperature.getMean() >= Validation.TEMPERATURE_MIN
-            && temperature.getMean() < Validation.TEMPERATURE_MAX) {
+        if (temperature.getMean() >= TEMPERATURE.min()
+            && temperature.getMean() < TEMPERATURE.max()) {
             this.temperature = temperature;
         } else {
             throw new IllegalStateException(MSG_UPDATE_ATMOSPHERIC_DATA_FAIL);
@@ -153,7 +138,7 @@ public class AtmosphericInformation {
      * @param wind value to set
      */
     public void setWind(final DataPoint wind) {
-        if (wind.getMean() >= Validation.WIND_MIN) {
+        if (wind.getMean() >= WIND.min()) {
             this.wind = wind;
         } else {
             throw new IllegalStateException(MSG_UPDATE_ATMOSPHERIC_DATA_FAIL);
@@ -173,8 +158,8 @@ public class AtmosphericInformation {
      * @param humidity value to set
      */
     public void setHumidity(final DataPoint humidity) {
-        if (humidity.getMean() >= Validation.HUMIDITY_MIN
-            && humidity.getMean() < Validation.HUMIDITY_MAX) {
+        if (humidity.getMean() >= HUMIDTY.min()
+            && humidity.getMean() < HUMIDTY.max()) {
             this.humidity = humidity;
         } else {
             throw new IllegalStateException(MSG_UPDATE_ATMOSPHERIC_DATA_FAIL);
@@ -194,8 +179,8 @@ public class AtmosphericInformation {
      * @param precipitation value to set
      */
     public void setPrecipitation(final DataPoint precipitation) {
-        if (precipitation.getMean() >= Validation.PRECIPITATION_MIN
-            && precipitation.getMean() < Validation.PRECIPITATION_MAX) {
+        if (precipitation.getMean() >= PRECIPITATION.min()
+            && precipitation.getMean() < PRECIPITATION.max()) {
             this.precipitation = precipitation;
         } else {
             throw new IllegalStateException(MSG_UPDATE_ATMOSPHERIC_DATA_FAIL);
@@ -215,8 +200,8 @@ public class AtmosphericInformation {
      * @param pressure value to set
      */
     public void setPressure(final DataPoint pressure) {
-        if (pressure.getMean() >= Validation.PRESSURE_MIN
-            && pressure.getMean() < Validation.PRESSURE_MAX) {
+        if (pressure.getMean() >= PRESSURE.min()
+            && pressure.getMean() < PRESSURE.max()) {
             this.pressure = pressure;
         } else {
             throw new IllegalStateException(MSG_UPDATE_ATMOSPHERIC_DATA_FAIL);
@@ -236,8 +221,8 @@ public class AtmosphericInformation {
      * @param cloudCover value to set
      */
     public void setCloudCover(final DataPoint cloudCover) {
-        if (cloudCover.getMean() >= Validation.CLOUD_COVER_MIN
-            && cloudCover.getMean() < Validation.CLOUD_COVER_MAX) {
+        if (cloudCover.getMean() >= CLOUDCOVER.min()
+            && cloudCover.getMean() < CLOUDCOVER.max()) {
             this.cloudCover = cloudCover;
         } else {
             throw new IllegalStateException(MSG_UPDATE_ATMOSPHERIC_DATA_FAIL);
@@ -274,66 +259,4 @@ public class AtmosphericInformation {
             && wind == null;
     }
 
-
-    /**
-     * Class containing validation constants for field values.
-     */
-    private static final class Validation {
-        /**
-         * Minimum possible temperature value.
-         */
-        static final double TEMPERATURE_MIN = -50;
-        /**
-         * Maximum possible temperature value.
-         */
-        static final double TEMPERATURE_MAX = 100;
-
-        /**
-         * Minimum possible wind speed.
-         */
-        static final double WIND_MIN = 0;
-
-        /**
-         * Minimum possible humidity value.
-         */
-        static final double HUMIDITY_MIN = 0;
-
-        /**
-         * Maximum possible humidity value.
-         */
-        static final double HUMIDITY_MAX = 100;
-
-        /**
-         * Minimum possible precipitation value.
-         */
-        static final double PRECIPITATION_MIN = 0;
-        /**
-         * Maximum possible precipitation value.
-         */
-        static final double PRECIPITATION_MAX = 100;
-
-        /**
-         * Minimum possible pressure value.
-         */
-        static final double PRESSURE_MIN = 650;
-        /**
-         * Maximum possible pressure value.
-         */
-        static final double PRESSURE_MAX = 800;
-
-        /**
-         * Minimum possible cloud cover value.
-         */
-        static final double CLOUD_COVER_MIN = 0;
-        /**
-         * Maximum possible cloud cover value.
-         */
-        static final double CLOUD_COVER_MAX = 100;
-
-        /**
-         * Hide utility class constructor.
-         */
-        private Validation() {
-        }
-    }
 }

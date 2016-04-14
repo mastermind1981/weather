@@ -47,9 +47,10 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
     private static final double R = 6372.8;
 
     /**
-     * Shared gson json to object factory.
+     * Gson json to object factory.
      */
-    private static final Gson GSON = new Gson();
+    @Inject
+    private Gson gson;
 
     /**
      * Internal performance counter to better understand most requested
@@ -121,7 +122,7 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
         }
         result.put("radius_freq", hist);
 
-        return GSON.toJson(result);
+        return gson.toJson(result);
     }
 
     /**
@@ -140,11 +141,13 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
         Double radius = NumberUtils.toDouble(radiusString, 0.0d);
         updateRequestFrequency(iata, radius);
 
-        List<AtmosphericInformation> result;
+        List<AtmosphericInformation> result = new ArrayList<>();
         AirportData centerAirportData = airportDataRepository.findOne(iata);
+        if (centerAirportData == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(result).build();
+        }
 
         if (radius.equals(0.0d)) {
-            result = new ArrayList<>();
             result.add(centerAirportData.getAtmosphericInformation());
         } else {
             result = StreamSupport.stream(airportDataRepository.findAll().spliterator(), false)

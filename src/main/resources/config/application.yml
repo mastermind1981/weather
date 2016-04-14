@@ -1,5 +1,6 @@
 server:
-    port: 9000
+    port: 9090
+    host: ${util.localhost}
 
 spring:
   application:

@@ -55,6 +55,7 @@ public class WeatherClient {
      */
     public static void main(final String... args) {
         WeatherClient wc = new WeatherClient();
+        wc.init();
         wc.pingCollect();
         wc.populate("wind", 0, 10, 6, 4, 20);
 
@@ -69,6 +70,35 @@ public class WeatherClient {
         LOG.info("complete");
         System.exit(0);
     }
+
+    /**
+     * Backwards compatibility init method that loads data that was previously
+     * hard coded inside rest service.
+     */
+    private void init() {
+        addAirport("BOS", "42.364347", "-71.005181");
+        addAirport("EWR", "40.6925", "-74.168667");
+        addAirport("JFK", "40.639751", "-73.778925");
+        addAirport("LGA", "40.777245", "-73.872608");
+        addAirport("MMU", "40.79935", "-74.4148747");
+    }
+
+    /**
+     * Adds an airport.
+     *
+     * @param iata      IATA code
+     * @param latitude  latitude
+     * @param longitude longitude
+     */
+    private void addAirport(final String iata, final String latitude,
+                            final String longitude) {
+        WebTarget path =
+            collect
+                .path(String.format("/airport/%s/%s/%s", iata, latitude, longitude));
+        Response response = path.request().post(null);
+        LOG.debug("Add airport {}. Response:\n{}", iata, response);
+    }
+
 
     /**
      * Pings weather server, to see if it's ready.
@@ -109,8 +139,8 @@ public class WeatherClient {
      * @param median    median
      * @param count     number of measurements
      */
-    public void populate(final String pointType, final int first, final int last, final int mean,
-                         final int median, final int count) {
+    public void populate(final String pointType, final int first, final int last,
+                         final int mean, final int median, final int count) {
         WebTarget path = collect.path("/weather/BOS/" + pointType);
         DataPoint dp = new DataPoint.Builder()
             .withFirst(first).withLast(last).withMean(mean).withMedian(median).withCount(count)

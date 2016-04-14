@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
  */
 @SpringBootApplication
 @EnableMapRepositories("com.crossover.trial.weather.repository")
+//@EnableConfigurationProperties( {SwaggerProperties.class})
 public class WeatherServer extends SpringBootServletInitializer {
 
     /**
